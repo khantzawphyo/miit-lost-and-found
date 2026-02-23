@@ -21,6 +21,7 @@ model User {
   items     Item[]
   claims    Claim[]
   createdAt DateTime @default(now())
+  sessions Session[]
 }
 
 model Item {
@@ -46,6 +47,15 @@ model Claim {
   claimant   User        @relation(fields: [claimantId], references: [id])
   claimantId String
   createdAt  DateTime    @default(now())
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  sessionId String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
 
 enum Role {
