@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  items     Item[]
+  claims    Claim[]
+  createdAt DateTime @default(now())
+}
+
+model Item {
+  id          String      @id @default(uuid())
+  title       String
+  description String
+  type        ItemType
+  status      ItemStatus  @default(OPEN)
+  location    String
+  imageUrl    String?
+  owner       User        @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  claims      Claim[]
+  createdAt   DateTime    @default(now())
+}
+
+model Claim {
+  id         String      @id @default(uuid())
+  message    String
+  status     ClaimStatus @default(PENDING)
+  item       Item        @relation(fields: [itemId], references: [id])
+  itemId     String
+  claimant   User        @relation(fields: [claimantId], references: [id])
+  claimantId String
+  createdAt  DateTime    @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ItemType {
+  LOST
+  FOUND
+}
+
+enum ItemStatus {
+  OPEN
+  CLAIMED
+  RESOLVED
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
